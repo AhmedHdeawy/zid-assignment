@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, Unique, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class Category {
@@ -6,7 +6,7 @@ export class Category {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column("varchar", { length: 200 })
+    @Column("varchar", { length: 200, unique: true })
     name: string;
     
     @Column("text")
