@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import apiResponse from 'src/api.response';
 
 @Controller('categories')
 export class CategoriesController {
@@ -13,8 +14,9 @@ export class CategoriesController {
   }
 
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  async findAll() {
+    const data = await this.categoriesService.findAll();
+    return apiResponse(200, "Done", data, null);
   }
 
   @Get(':id')
