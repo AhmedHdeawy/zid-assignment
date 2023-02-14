@@ -20,17 +20,22 @@ export class CategoriesController {
   @Get()
   async findAll() {
     const data = await this.categoriesService.findAll();
-    return apiResponse(200, "Done", data, null);
+    return apiResponse(200, "Categories Retrieved Successfully", data, null);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const data = await this.categoriesService.findOne(+id);
+    return apiResponse(200, "Category Retrieved Successfully", data, null);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+    await this.categoriesService.update(+id, updateCategoryDto);
+    
+    const data = await this.categoriesService.findOne(+id);
+
+    return apiResponse(200, "Category Updated Successfully", data);
   }
 
   @Delete(':id')
