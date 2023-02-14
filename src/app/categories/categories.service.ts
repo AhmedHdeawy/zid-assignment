@@ -29,16 +29,27 @@ export class CategoriesService {
     return this.categoryRepository.find();
   }
 
-  findOne(id: number) {
-    return this.categoryRepository.findOneBy({ id });
+  async findOne(id: number) {
+    const category = await this.categoryRepository.findOneBy({ id });
+    if (category == null)
+    {
+      throw new HttpException(apiResponse(HttpStatus.NOT_FOUND, "Category Not Found"), HttpStatus.NOT_FOUND);
+    }
+    return category;
   }
   
   async getCategoryByName(name: string) {
     return await this.categoryRepository.findOneBy({ name })
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    try {
+      return await this.categoryRepository.update(id, updateCategoryDto);
+    } catch (error) {
+      console.log("Error Happened while updating the category");
+      console.error(error.message);
+      throw new HttpException(apiResponse(HttpStatus.BAD_REQUEST, error.message), HttpStatus.BAD_REQUEST);
+    }
   }
 
   async remove(id: number) {
