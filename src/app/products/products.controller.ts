@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import apiResponse from 'src/api.response';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { ParsedQs } from 'qs';
 
 
 @Controller('products')
@@ -18,14 +19,16 @@ export class ProductsController {
   }
 
   @Get()
-  async findAll() {
-    const data = await this.productsService.findAll();
+  async findAll(@Req() request: Request) {
+
+    const data = await this.productsService.findAll(request.query);
+
     return apiResponse(200, "Products Retrieved Successfully", data, null);
   }
 
   @Get('/random')
-  async getRandomProducts() {
-    const data = await this.productsService.findAll();
+  async getRandomProducts(@Req() request: Request) {
+    const data = await this.productsService.findAll(request.query);
     return apiResponse(200, "Random Products Retrieved Successfully", data, null);
   }
 

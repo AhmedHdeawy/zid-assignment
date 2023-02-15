@@ -6,6 +6,16 @@ import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import apiResponse from 'src/api.response';
+import { Request } from 'express';
+import { ParsedQs } from 'qs';
+
+interface Pagination {
+  total: number;
+  per_page: number;
+  page: number;
+  current_page: number;
+  total_pages: number;
+}
 
 @Injectable()
 export class ProductsService {
@@ -25,19 +35,23 @@ export class ProductsService {
     }
   }
 
-  findAll() {
-    return this.productRepository.find();
+  async findAll(request: ParsedQs) {
+
+    const pagination = await this.paginationData(request);
+
+    const data = await this.productRepository.createQueryBuilder().orderBy('id', 'DESC').offset(pagination.page).limit(pagination.per_page).getMany();
+
+    return { data, pagination };
   }
 
   async findOne(id: number) {
     const product = await this.productRepository.findOneBy({ id });
-    if (product == null)
-    {
+    if (product == null) {
       throw new HttpException(apiResponse(HttpStatus.NOT_FOUND, "Product Not Found"), HttpStatus.NOT_FOUND);
     }
     return product;
   }
-  
+
   async getProductByName(name: string) {
     return await this.productRepository.findOneBy({ name })
   }
@@ -54,5 +68,29 @@ export class ProductsService {
 
   async remove(id: number) {
     await this.productRepository.delete(id);
+  }
+
+  async paginationData(request: ParsedQs): Promise<Pagination> {
+    let page: number = 0;
+    let per_page: number = 15;
+
+    if (request.per_page !== undefined && !isNaN(Number(request.per_page))) {
+      per_page = Number(request.per_page) == 0 ? per_page : Number(request.per_page);
+    }
+
+    if (request.page !== undefined && !isNaN(Number(request.page)) && Number(request.page) > 0 ) {
+      page = (Number(request.page) - 1) * per_page;
+    }
+
+    const total = await this.productRepository.count();
+    const total_pages = total / per_page;
+
+    return {
+      total: total,
+      per_page: per_page,
+      page,
+      current_page: page == 0 ? 1 : page,
+      total_pages: Math.ceil(total_pages)
+    };
   }
 }
