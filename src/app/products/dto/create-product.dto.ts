@@ -23,9 +23,9 @@ export class CreateProductDto {
     @Length(2)
     readonly description: string;
 
-    @IsNotEmpty()
-    @IsArray()
-    @ArrayMinSize(1)
-    @Validate(IsCategoriesExistsValidator)
-    readonly categories: string;
+    // @IsNotEmpty()
+    // @IsArray()
+    // @ArrayMinSize(1)
+    // @Validate(IsCategoriesExistsValidator)
+    // readonly categories: string;
 }
