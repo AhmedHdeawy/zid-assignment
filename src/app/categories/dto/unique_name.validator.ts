@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface, useContainer } from 'class-validator';
 import { CategoriesService } from '../categories.service';
 
 @ValidatorConstraint({ async: true })
