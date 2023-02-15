@@ -1,6 +1,6 @@
-import { Length, IsNotEmpty, IsString, Validate } from 'class-validator';
+import { Length, IsNotEmpty, IsString, Validate, Min, Max, IsNumber, IsArray, ArrayMinSize } from 'class-validator';
 import { UniqueNameValidator } from './unique_name.validator';
-import { ProductsService } from '../products.service';
+import { IsCategoriesExistsValidator } from './categories_exists.validator';
 
 
 export class CreateProductDto {
@@ -11,9 +11,21 @@ export class CreateProductDto {
     @Validate(UniqueNameValidator)
     readonly name: string;
 
+    @IsNotEmpty()
+    @IsNumber()
+    @Min(1)
+    @Max(1000000)
+    readonly price: number;
+
 
     @IsNotEmpty()
     @IsString()
     @Length(2)
     readonly description: string;
+
+    @IsNotEmpty()
+    @IsArray()
+    @ArrayMinSize(1)
+    @Validate(IsCategoriesExistsValidator)
+    readonly categories: string;
 }
