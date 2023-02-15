@@ -1,6 +1,7 @@
 import { Length, IsNotEmpty, IsString, Validate, Min, Max, IsNumber, IsArray, ArrayMinSize } from 'class-validator';
 import { UniqueNameValidator } from './unique_name.validator';
 import { IsCategoriesExistsValidator } from './categories_exists.validator';
+import { Category } from 'src/app/categories/entities/category.entity';
 
 
 export class CreateProductDto {
@@ -23,9 +24,9 @@ export class CreateProductDto {
     @Length(2)
     readonly description: string;
 
-    // @IsNotEmpty()
-    // @IsArray()
-    // @ArrayMinSize(1)
-    // @Validate(IsCategoriesExistsValidator)
-    // readonly categories: string;
+    @IsNotEmpty()
+    @IsArray()
+    @ArrayMinSize(1)
+    @Validate(IsCategoriesExistsValidator)
+    readonly categories: Category[];
 }
