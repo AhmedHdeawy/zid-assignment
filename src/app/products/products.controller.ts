@@ -23,6 +23,12 @@ export class ProductsController {
     return apiResponse(200, "Products Retrieved Successfully", data, null);
   }
 
+  @Get('/random')
+  async getRandomProducts() {
+    const data = await this.productsService.findAll();
+    return apiResponse(200, "Random Products Retrieved Successfully", data, null);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const data = await this.productsService.findOne(+id);
