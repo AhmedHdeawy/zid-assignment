@@ -8,7 +8,7 @@ export class CreateCategoryDto {
     @IsNotEmpty()
     @IsString()
     @Length(2, 200)
-    // @Validate(UniqueNameValidator)
+    @Validate(UniqueNameValidator)
     readonly name: string;
 
 
