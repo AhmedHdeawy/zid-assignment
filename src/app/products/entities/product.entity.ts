@@ -1,5 +1,14 @@
 import { Category } from 'src/app/categories/entities/category.entity';
-import { Entity, Column, DeleteDateColumn, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { 
+    Entity, 
+    Column, 
+    DeleteDateColumn, 
+    PrimaryGeneratedColumn, 
+    CreateDateColumn, 
+    UpdateDateColumn, 
+    ManyToOne, 
+    JoinColumn
+} from 'typeorm';
 
 @Entity()
 export class Product {
@@ -15,11 +24,6 @@ export class Product {
     @Column("text")
     description: string;
 
-
-    @ManyToOne(() => Category, category => category.id)
-    @JoinColumn({ name: 'category_id' })
-    category: Category;
-
     @CreateDateColumn()
     created_at: Date;
 
@@ -28,4 +32,22 @@ export class Product {
 
     @DeleteDateColumn()
     deleted_at?: Date;
+}
+
+
+
+@Entity()
+export class ProductsCategories {
+    @PrimaryGeneratedColumn({ unsigned: true })
+    id: number;
+
+    @ManyToOne(() => Category, category => category.id, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+    @JoinColumn({ name: 'category_id' })
+    category: Category;
+    
+    
+    @ManyToOne(() => Product, product => product.id, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+    @JoinColumn({ name: 'product_id' })
+    product: Product;
+
 }
