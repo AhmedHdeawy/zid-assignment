@@ -1,13 +1,14 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Product } from './entities/product.entity';
+import { Repository, DataSource } from 'typeorm';
+import { Product, ProductsCategories } from './entities/product.entity';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import apiResponse from 'src/api.response';
 import { Request } from 'express';
 import { ParsedQs } from 'qs';
+import { Category } from '../categories/entities/category.entity';
 
 interface Pagination {
   total: number;
@@ -23,15 +24,37 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
+    @InjectRepository(ProductsCategories)
+    private productCategoryRepository: Repository<ProductsCategories>,
+    private dataSource: DataSource
   ) { }
 
   async create(createProductDto: CreateProductDto) {
+    
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      return await this.productRepository.save(createProductDto);
+
+      const savedProduct = await this.productRepository.save(createProductDto);
+
+      await this.saveCategoriesWithProduct(createProductDto.categories, savedProduct);
+
+      await queryRunner.commitTransaction();
+
+      return savedProduct;
+
     } catch (error) {
       console.log("Error Happened while creating a new product");
       console.error(error.message);
+      await queryRunner.rollbackTransaction();
       throw new HttpException(apiResponse(HttpStatus.BAD_REQUEST, error.message), HttpStatus.BAD_REQUEST);
+
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -92,5 +115,24 @@ export class ProductsService {
       current_page: page == 0 ? 1 : page,
       total_pages: Math.ceil(total_pages)
     };
+  }
+
+  async saveCategoriesWithProduct(categories: Category[], savedProduct: Product): Promise<Category[]> {
+    
+    let dbCategories: Category[] = [];
+    
+    for (let index = 0; index < categories.length; index++) {
+      const category = await this.categoryRepository.findOneByOrFail({ id: categories[index].id });
+
+      dbCategories.push(category);
+
+      const productCategory = new ProductsCategories();
+      productCategory.category = category;
+      productCategory.product = savedProduct;
+
+      await this.productCategoryRepository.save(productCategory);
+    }
+
+    return dbCategories;
   }
 }
