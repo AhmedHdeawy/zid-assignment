@@ -9,14 +9,12 @@ export class Product {
     @Column("varchar", { length: 200, unique: true })
     name: string;
 
-    @Column("decimal", { precision: 6, scale: 2 })
+    @Column("decimal", { precision: 10, scale: 2 })
     price: number;
     
     @Column("text")
     description: string;
 
-    @Column({ unsigned: true })
-    category_id: number;
 
     @ManyToOne(() => Category, category => category.id)
     @JoinColumn({ name: 'category_id' })

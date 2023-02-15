@@ -29,6 +29,10 @@ export class CategoriesService {
     return this.categoryRepository.find();
   }
 
+  async findOneById(id: number) {
+    return await this.categoryRepository.findOneBy({ id });
+  }
+
   async findOne(id: number) {
     const category = await this.categoryRepository.findOneBy({ id });
     if (category == null)
