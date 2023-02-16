@@ -3,8 +3,7 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import apiResponse from 'src/api.response';
-import { Request, Response } from 'express';
-import { ParsedQs } from 'qs';
+import { Request } from 'express';
 
 
 @Controller('products')
@@ -28,7 +27,7 @@ export class ProductsController {
 
   @Get('/random')
   async getRandomProducts(@Req() request: Request) {
-    const data = await this.productsService.findAll(request.query);
+    const data = await this.productsService.getRandomProducts(request.query);
     return apiResponse(200, "Random Products Retrieved Successfully", data, null);
   }
 
