@@ -9,7 +9,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
                 isGlobal: true,
-                store: redisStore as unknown as CacheStore,
+                // store: redisStore as unknown as CacheStore,
+                store: redisStore,
                 host: configService.get('REDIS_HOST'),
                 port: configService.get('REDIS_PORT')
             }),

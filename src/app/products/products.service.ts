@@ -1,12 +1,12 @@
 import { Injectable, HttpException, HttpStatus, CACHE_MANAGER, Inject } from '@nestjs/common';
+import {Cache} from 'cache-manager';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, In } from 'typeorm';
 import { Product, ProductsCategories } from './entities/product.entity';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import apiResponse from 'src/api.response';
-import { Request } from 'express';
 import { ParsedQs } from 'qs';
 import { Category } from '../categories/entities/category.entity';
 
@@ -66,6 +66,10 @@ export class ProductsService {
     const data = await this.productRepository.createQueryBuilder().orderBy('id', 'DESC').offset(pagination.page).limit(pagination.per_page).getMany();
 
     return { data, pagination };
+  }
+  
+  async getRandomProducts(request: ParsedQs) {
+    return await this.getPaginatedRandomProducts(request);
   }
 
   async findOne(id: number) {
@@ -135,5 +139,46 @@ export class ProductsService {
     }
 
     return dbCategories;
+  }
+
+
+  async getPaginatedRandomProducts(request: ParsedQs): Promise<Product[]> {
+
+    const page: number = request.page !== undefined && !isNaN(Number(request.page)) ? Number(request.page) : 1;
+    const pageSize: number = request.per_page !== undefined && !isNaN(Number(request.per_page)) ? Number(request.per_page) : 3;
+
+    const cacheKey = 'randomProductIds';
+    let productIds = await this.cacheManager.get<number[]>(cacheKey);
+
+    if (!productIds) {
+      const allProductIds = await this.productRepository
+        .createQueryBuilder()
+        .select('id')
+        .getRawMany();
+
+      productIds = this.shuffleArray(allProductIds.map((p) => p.id));
+      await this.cacheManager.set(cacheKey, productIds, { ttl: 3600 });
+    }
+
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const pageProductIds = productIds.slice(startIndex, endIndex);
+    
+    const products = await this.productRepository.findBy({
+      id: In(pageProductIds)
+    });
+
+    return products;
+  }
+
+  private shuffleArray(array: any[]): any[] {
+    const shuffled = [...array];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
   }
 }
