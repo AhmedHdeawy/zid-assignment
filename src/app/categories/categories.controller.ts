@@ -2,33 +2,46 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import apiResponse from 'src/api.response';
+import { Response } from 'express';
+
 
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
+  async create(@Body() createCategoryDto: CreateCategoryDto) {
+    const data = await this.categoriesService.create(createCategoryDto);
+
+    return apiResponse(200, "Category Created Successfully", data);
   }
 
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  async findAll() {
+    const data = await this.categoriesService.findAll();
+    return apiResponse(200, "Categories Retrieved Successfully", data, null);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const data = await this.categoriesService.findOne(+id);
+    return apiResponse(200, "Category Retrieved Successfully", data, null);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+    await this.categoriesService.update(+id, updateCategoryDto);
+    
+    const data = await this.categoriesService.findOne(+id);
+
+    return apiResponse(200, "Category Updated Successfully", data);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+    this.categoriesService.remove(+id);
+
+    return apiResponse(200, "Category Deleted Successfully");
   }
 }

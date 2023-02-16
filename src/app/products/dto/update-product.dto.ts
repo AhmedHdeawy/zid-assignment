@@ -1,14 +1,14 @@
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateProductDto } from './create-product.dto';
 import { Length, IsNotEmpty, IsString, Validate } from 'class-validator';
 import { UniqueNameValidator } from './unique_name.validator';
-import { CategoriesService } from '../categories.service';
 
+export class UpdateProductDto {
 
-export class CreateCategoryDto {
-    
     @IsNotEmpty()
     @IsString()
     @Length(2, 200)
-    @Validate(UniqueNameValidator)
+    // @Validate(UniqueNameValidator)
     readonly name: string;
 
 

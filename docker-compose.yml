@@ -1,0 +1,55 @@
+version: '3.7'
+services:
+  app:
+    build: .
+    environment:
+      NODE_ENV: development
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      REDIS_HOST: redis
+      REDIS_PORT: ${REDIS_PORT}
+    ports:
+      - "3200:3200"
+    networks:
+      - zid
+    depends_on:
+      - mysql
+      - redis
+  mysql:
+    image: mysql/mysql-server:8.0
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: '${DB_NAME}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - zid
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6380:6379"
+    volumes:
+      - 'zid-redis:/data'
+    networks:
+      - zid
+
+networks:
+  zid:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
+  zid-redis:
+    driver: local
