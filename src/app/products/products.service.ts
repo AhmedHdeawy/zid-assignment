@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, CACHE_MANAGER, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Product, ProductsCategories } from './entities/product.entity';
@@ -28,7 +28,8 @@ export class ProductsService {
     private categoryRepository: Repository<Category>,
     @InjectRepository(ProductsCategories)
     private productCategoryRepository: Repository<ProductsCategories>,
-    private dataSource: DataSource
+    private dataSource: DataSource,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) { }
 
   async create(createProductDto: CreateProductDto) {
